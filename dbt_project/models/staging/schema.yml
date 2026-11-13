@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: stg_ville
+    columns:
+      - name: city_id
+        tests: [not_null, unique]
+      - name: zone_type
+        tests:
+          - accepted_values:
+              values: ["industrielle", "urbaine", "c\u00f4ti\u00e8re"]
+
+  - name: stg_air
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [city_id, observed_at]
+    columns:
+      - name: city_id
+        tests:
+          - not_null
+          - accepted_values:
+              values: [tunis, sfax, sousse, gabes, bizerte, gafsa]
+          - relationships:
+              to: ref('stg_ville')
+              field: city_id
+      - name: observed_at
+        tests: [not_null]
+      - name: pm2_5
+        tests:
+          - not_null:
+              config: { severity: warn }
+          - dbt_utils.accepted_range: { min_value: 0, max_value: 1000 }
+      - name: pm10
+        tests:
+          - dbt_utils.accepted_range: { min_value: 0, max_value: 2000 }
+      - name: no2
+        tests:
+          - dbt_utils.accepted_range: { min_value: 0, max_value: 1000 }
+
+  - name: stg_meteo
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [city_id, observed_at]
+    columns:
+      - name: city_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ville')
+              field: city_id
+      - name: observed_at
+        tests: [not_null]
+      - name: temperature_c
+        tests:
+          - dbt_utils.accepted_range: { min_value: -10, max_value: 55 }
+      - name: humidity_pct
+        tests:
+          - dbt_utils.accepted_range: { min_value: 0, max_value: 100 }
+      - name: precipitation_mm
+        tests:
+          - dbt_utils.accepted_range: { min_value: 0, max_value: 300 }
+      - name: wind_speed_kmh
+        tests:
+          - dbt_utils.accepted_range: { min_value: 0, max_value: 200 }
