@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  dbt:
+    runs-on: ubuntu-latest
+    env:
+      DUCKDB_PATH: ${{ github.workspace }}/data/ci.duckdb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install dbt-duckdb duckdb
+      - name: Creer la base de test (conforme au contrat raw)
+        run: python ci/make_test_db.py data/ci.duckdb
+      - name: dbt deps
+        run: dbt deps --profiles-dir .
+        working-directory: dbt_project
+      - name: dbt build (modeles + tests + contrats)
+        run: dbt build --profiles-dir .
+        working-directory: dbt_project

@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: dim_ville
+    columns:
+      - name: city_id
+        tests: [not_null, unique]
+
+  - name: fct_qualite_air_horaire
+    config:
+      contract:
+        enforced: true
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [city_id, observed_at]
+    columns:
+      - name: city_id
+        data_type: varchar
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_ville')
+              field: city_id
+      - name: city_name
+        data_type: varchar
+      - name: zone_type
+        data_type: varchar
+      - name: observed_at
+        data_type: timestamp
+        tests: [not_null]
+      - name: observation_date
+        data_type: date
+      - name: hour_of_day
+        data_type: integer
+        tests:
+          - dbt_utils.accepted_range: { min_value: 0, max_value: 23 }
+      - name: pm2_5
+        data_type: double
+      - name: pm10
+        data_type: double
+      - name: no2
+        data_type: double
+      - name: so2
+        data_type: double
+      - name: o3
+        data_type: double
+      - name: temperature_c
+        data_type: double
+      - name: humidity_pct
+        data_type: double
+      - name: precipitation_mm
+        data_type: double
+      - name: wind_speed_kmh
+        data_type: double
+      - name: is_pm25_above_who
+        data_type: boolean
+      - name: is_pm10_above_who
+        data_type: boolean
+      - name: is_raining
+        data_type: boolean

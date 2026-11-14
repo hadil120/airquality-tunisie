@@ -1,0 +1,17 @@
+name: airquality
+version: "1.0.0"
+config-version: 2
+profile: airquality
+
+vars:
+  who_pm25_threshold: 15
+  who_pm10_threshold: 45
+
+models:
+  airquality:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table
