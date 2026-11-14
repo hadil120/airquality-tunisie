@@ -1,0 +1,8 @@
+services:
+  ingestion:
+    build: .
+    environment:
+      DUCKDB_PATH: /app/data/airquality.duckdb
+      VILLES_CSV: /app/data/seeds/villes.csv
+    volumes:
+      - ./data:/app/data
